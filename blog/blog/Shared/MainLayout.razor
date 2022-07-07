@@ -1,17 +1,28 @@
 ﻿@inherits LayoutComponentBase
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
-
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+<div>
     <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+        <MudAppBar Color="Color.Dark" Fixed="false" Elevation="5">
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex justify-center align-baseline flex-row">
+                <MudLink Href="/" Color="Color.Inherit">На главную</MudLink>
+                <MudSpacer></MudSpacer>
+                <MudLink Href="https://github.com/ShockThunder" Color="Color.Inherit">
+                    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"/>
+                </MudLink>
+                <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+                <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark"/>
+            </MudContainer>
+        </MudAppBar>
 
-        <article class="content px-4">
+        <MudContainer MaxWidth="MaxWidth.Medium">
             @Body
-        </article>
+        </MudContainer>
     </main>
 </div>
+
+@code{
+    private MudTheme _theme = new();
+    private bool _isDarkMode;
+}
