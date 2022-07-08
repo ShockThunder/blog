@@ -4,21 +4,26 @@
 <MudSnackbarProvider/>
 <div>
     <main>
-        <MudAppBar Color="Color.Dark" Fixed="false" Elevation="5">
-            <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex justify-center align-baseline flex-row">
-                <MudLink Href="/" Color="Color.Inherit">На главную</MudLink>
-                <MudSpacer></MudSpacer>
-                <MudLink Href="https://github.com/ShockThunder" Color="Color.Inherit">
-                    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"/>
-                </MudLink>
-                <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
-                <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark"/>
-            </MudContainer>
-        </MudAppBar>
+        <MudPaper Class="grey darken-1 shades-text text-white">
+            <MudAppBar Color="Color.Dark" Fixed="false" Elevation="5">
+                <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex justify-center align-baseline flex-row">
+                    <MudLink Href="/" Color="Color.Inherit">На главную</MudLink>
+                    <MudSpacer></MudSpacer>
+                    <MudLink Href="https://github.com/ShockThunder" Color="Color.Inherit">
+                        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"/>
+                    </MudLink>
+                    <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+                    <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark"/>
+                </MudContainer>
+            </MudAppBar>
 
-        <MudContainer MaxWidth="MaxWidth.Medium">
-            @Body
-        </MudContainer>
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+                <MudPaper Class="pa-4">
+                    @Body
+                </MudPaper>
+            </MudContainer>
+        </MudPaper>
+
     </main>
 </div>
 
