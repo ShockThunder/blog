@@ -1,0 +1,196 @@
+﻿@page "/dfs-2"
+<MudText Typo="Typo.h4">Поиск пути в лабиринте по алгоритму DFS на C#</MudText>
+<MudText Typo="Typo.h6">&emsp;30 января, 2019</MudText>
+<MudDivider/>
+<MudText Class="pt-6">
+     &emsp;Ссылка на первую <MudLink Href="/dfs-1">часть.</MudLink>
+</MudText>
+<MudText Class="pt-6 pb-6"> 
+    &emsp;В прошлый раз был написан генератор лабиринтов на основе алгоритма DFS.
+    Он работает, выводит на экран картинку и даже автоматически масштабирует её.
+    Однако в нем есть что улучшить. Для начала напишем код, который будет решать наш 
+    сгенерированный лабиринт. При этом алгоритм у него будет даже проще, чем у генератора.
+</MudText>
+<MudText>
+    1. Сделайте начальную клетку текущей и отметьте ее как посещенную.
+</MudText>
+<MudText>
+    2. Пока есть непосещенные клетки
+</MudText>
+<MudText>
+    &emsp;2.1 Если текущая клетка имеет непосещенных «соседей»
+</MudText>
+<MudText>
+    &emsp;&emsp;2.1.1 Выберите случайную клетку из соседних
+</MudText>
+<MudText>
+    &emsp;&emsp;2.1.2 Сделайте выбранную клетку текущей и отметьте ее как посещенную.
+</MudText>
+<MudText>
+    &emsp;2.2 Иначе если стек не пуст
+</MudText>
+<MudText>
+    &emsp;&emsp;2.2.1Выдерните клетку из стека.
+</MudText>
+<MudText Class="pt-6 pb-6">
+    Как мы видим, последовательность действий почти не изменилась. 
+    Только теперь нам не нужно удалять стены. Перепишем функцию с учетом этих условий.
+    А также помним, что раз стен нет, то ближайший сосед будет находиться на дистанции
+    в одну клетку, а не в две.
+</MudText>
+<MudPaper Class="ma-4" Elevation="10">
+    <MudText Class="pa-4" Typo="Typo.overline">Функция поиска решения</MudText>
+    <MudText Class="pa-4">
+        <pre>
+public void SolveMaze()
+{
+    bool flag = false; //флаг достижения финиша
+    foreach (Cell c in _cells)
+    {
+        if (_cells[c.X, c.Y]._isCell == true)
+        {
+            _cells[c.X, c.Y]._isVisited = false;
+        }
+    }
+
+    _path.Clear();
+    _path.Push(start);
+
+    while (_path.Count != 0) //пока в стеке есть клетки ищем соседей и строим путь
+    {
+        if (_path.Peek().X == finish.X && _path.Peek().Y == finish.Y)
+        {
+            flag = true;
+        }
+
+        if (!flag)
+        {
+            _neighbours.Clear();
+            GetNeighboursSolve(_path.Peek());
+            if (_neighbours.Count != 0)
+            {
+                Cell nextCell = ChooseNeighbour(_neighbours);
+                nextCell._isVisited = true; //делаем текущую клетку посещенной
+                _cells[nextCell.X, nextCell.Y]._isVisited = true; //и в общем массиве
+                _path.Push(nextCell); //затем добавляем её в стек
+                _visited.Add(_path.Peek());
+            }
+            else
+            {
+                _path.Pop();
+            }
+        }
+        else
+        {
+            _solve.Add(_path.Peek());
+            _path.Pop();
+        }
+    }
+}
+            </pre>
+    </MudText>
+</MudPaper>
+<MudPaper Class="ma-4" Elevation="10">
+    <MudText Class="pa-4" Typo="Typo.overline">Функция поиска соседа</MudText>
+    <MudText Class="pa-4">
+        <pre>
+private void GetNeighboursSolve(Cell localcell) // Получаем соседа текущей клетки
+{
+    int x = localcell.X;
+    int y = localcell.Y;
+    const int distance = 1;
+    Cell[] possibleNeighbours = new[] // Список всех возможных соседeй
+    {
+        new Cell(x, y - distance), // Up
+        new Cell(x + distance, y), // Right
+        new Cell(x, y + distance), // Down
+        new Cell(x - distance, y) // Left
+    };
+    for (int i = 0; i &lt; 4; i++) // Проверяем все 4 направления
+    {
+        Cell curNeighbour = possibleNeighbours[i];
+        if (curNeighbour.X &gt; 0 && curNeighbour.X &lt; _width 
+            &amp;&amp; curNeighbour.Y &gt; 0 && curNeighbour.Y &lt; _height)
+        {// Если сосед не выходит за стенки лабиринта
+            if (_cells[curNeighbour.X, curNeighbour.Y]._isCell 
+                &amp;&amp; !_cells[curNeighbour.X, curNeighbour.Y]._isVisited)
+            { // А также является клеткой и непосещен
+                _neighbours.Add(curNeighbour);
+            }// добавляем соседа в Лист соседей
+        }
+    }
+}
+            </pre>
+    </MudText>
+</MudPaper>
+<MudText>
+    При поиске решения нам надо хранить путь, 
+    который мы проделали от старта до финиша, а также ради 
+    интереса будем хранить все те клетки, которые мы посетили в процессе поиска. 
+    Для этого служат листы _solve и _visited. В лист посещенных клетки добавляются после 
+    выбора соседа, а в лист пути только те, которые находились в стеке на момент достижения финиша.
+</MudText>
+<MudText>
+    Теперь нужно отрисовать пройденный путь. Здесь воспользуемся тем же способом,
+    что и при отрисовке самого лабиринта, создадим битмап нужного размера и затем нарисуем на нем то, что нужно.
+</MudText>
+
+<MudPaper Class="ma-4" Elevation="10">
+    <MudText Class="pa-4" Typo="Typo.overline">Функция отрисовки решения</MudText>
+    <MudText Class="pa-4">
+        <pre>
+void DrawSolve()
+{
+    Brush blueBrush = new SolidBrush(Color.Blue);
+    Brush pinkBrush = new SolidBrush(Color.Pink);
+    using (Graphics gr = Graphics.FromImage(inBm))
+    {
+        gr.SmoothingMode = SmoothingMode.AntiAlias;
+
+        foreach (Cell c in inMaze._visited)
+        {
+            Point point = new Point(c.X * CellWid, c.Y * CellWid);
+            Size size = new Size(CellWid, CellWid);
+            Rectangle rec = new Rectangle(point, size);
+            gr.FillRectangle(pinkBrush, rec);
+        }
+
+        foreach (Cell c in inMaze._solve)
+        {
+            Point point = new Point(c.X * CellWid, c.Y * CellWid);
+            Size size = new Size(CellWid, CellWid);
+            Rectangle rec = new Rectangle(point, size);
+            gr.FillRectangle(blueBrush, rec);
+        }
+
+        gr.FillRectangle(new SolidBrush(Color.Green),    //заливаем старт зеленым
+           new Rectangle(new Point(inMaze.start.X * CellWid, inMaze.start.Y * CellWid),
+           new Size(CellWid, CellWid)));
+        gr.FillRectangle(new SolidBrush(Color.Red),       //а финиш красным
+            new Rectangle(new Point(inMaze.finish.X * CellWid, inMaze.finish.Y * CellWid),
+            new Size(CellWid, CellWid)));
+    }
+    picMaze.Image = inBm; //отображаем картинку
+}
+            </pre>
+    </MudText>
+</MudPaper>
+
+<MudText>
+    При отрисовке я столкнулся с проблемой. Я ограничил минимальный размер клетки параметрами 10х10 пикселей.
+    И при отрисовке лабиринта 1000х1000 программа «кушала» примерно 450 мегабайт оперативной памяти. 
+    После отрисовки решения почти гигабайт! Оказалось, что при создании битмапа каждый пиксель 
+    требовал 4 байта в памяти (внезапно), а 4*10000*10000 и получится примерно 400 мегабайт. 
+    А если добавить к этому второй битмап, то объем удвоится. Снизить затраты памяти мне удалось, 
+    использовав формат Format16bppRgb555 который требует в два раза меньше памяти (16 байт на пиксель). 
+    Также перестал создавать для отрисовки решения новый битмап, а просто передавал туда уже созданный для 
+    отрисовки самого лабиринта. В результате затраты памяти снизились в 4 раза!
+</MudText>
+<MudText Class="pt-6">
+    Также программа получила возможность сохранять сгенерированный лабиринт в картинку и обзавелась проверкой входных данных.
+</MudText>
+<MudText Class="pt-6 pb-6">
+    Вот в принципе и все. Ссылки на <MudLink Href="https://github.com/ShockThunder/mazeGenerator_dfs">исходный код</MudLink> и сам <MudLink Href="https://drive.google.com/file/d/1w07RBfEQ2UaIBGnpeLg6dU3nlOOxoLxs/view">экзешник</MudLink> прикладываю. 
+    P.S. лабиринты более 1000х1000 создавать с осторожностью, а то при размере 
+    10000х10000 потребуется 20+ Гб оперативной памяти.
+</MudText>
