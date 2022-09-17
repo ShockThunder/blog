@@ -388,3 +388,4 @@ blog/.idea/.idea.blog/.idea/
 .Trashes
 ehthumbs.db
 Thumbs.db
+/Gemfile.lock
